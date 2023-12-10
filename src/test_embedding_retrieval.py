@@ -14,6 +14,7 @@ class TestEmbeddingRetrieval:
         self.test_set = []
 
     def set_up(self) -> None:
+        """ 读取测试数据 """
         test_file_path = "../data/test_set/testset_WLAN 维护宝典（分销）_retrieval_v1.txt"
         with open(test_file_path, "r", encoding="utf-8") as fr:
             for line in fr.readlines():
@@ -21,7 +22,7 @@ class TestEmbeddingRetrieval:
                 self.test_set.append((q.strip(), t.strip()))
 
     @staticmethod
-    def compare_two_sentence(short_x, long_y):
+    def compare_two_sentence(short_x, long_y) -> bool:
         """ 比较两个字符串，只要短串内容出现（不需要相邻）在长串中即认为相似 """
         m, n = len(short_x), len(long_y)
 
@@ -50,6 +51,7 @@ class TestEmbeddingRetrieval:
     def test_embedding_retrieval(self) -> None:
         if not self.test_set:
             return
+        # 读取向量索引
         embeddings = HuggingFaceEmbeddings(model_name="shibing624/text2vec-base-chinese")
         index_path = "../data/index/"
         vector_store = FAISS.load_local(index_path, embeddings, index_name="WLAN 维护宝典（分销）")
@@ -58,8 +60,10 @@ class TestEmbeddingRetrieval:
             print(f"Q: {q}")
             # 去除空白符
             a_rm_blank = re.sub(r"\s+", "", a)
+            # 召回top3文档
             sim_docs = vector_store.similarity_search(q, k=3, fetch_k=30)
             for doc in sim_docs:
+                # 比较文本相似度
                 if self.compare_two_sentence(a_rm_blank, doc.page_content):
                     correct_cnt += 1
                     print(f"A: {doc.page_content}")
@@ -68,7 +72,7 @@ class TestEmbeddingRetrieval:
 
         print(f"\n"
               f">> Correct: {correct_cnt}\n"
-              f">> Recall accuracy: {correct_cnt / len(self.test_set) * 100:.2f}%"
+              f">> Recall accuracy(@top3): {correct_cnt / len(self.test_set) * 100:.2f}%"
               )
 
 
