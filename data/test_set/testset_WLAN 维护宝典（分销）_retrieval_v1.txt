@@ -1,0 +1,10 @@
+终端连不上 Wi-Fi 信号|||终端连不上 Wi-Fi 信号
+忘记了 AP 的登录密码|||忘记了 AP 的登录密码
+部分 AP 不上线|||部分 AP 不上线
+802.1x 认证失败|||802.1x 认证失败
+Portal 认证失败|||Portal 认证失败
+终端 station-trace 解析|||终端 station-trace 解析
+CampusInsight 上不显示性能上报数据|||CampusInsight 上不显示性能上报数据
+Mesh 组网中 MP 上线失败|||Mesh 组网中 MP 上线失败
+查看AP当前工作的功率模式|||查看AP当前工作的功率模式
+如果设备提示“Error: The specified file does not exist or is illegal.”|||如果设备提示“Error: The specified file does not exist or is illegal.”
