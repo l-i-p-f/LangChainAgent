@@ -4,6 +4,7 @@
 # @Description:
 
 import os
+from pathlib import Path
 
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
@@ -15,8 +16,11 @@ from langchain.vectorstores import FAISS
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+LOCAL_INDEX_PATH = "../data/index"
+
 
 def set_up_openai_api_key():
+    """ 从本地文件读取openai api key设置环境变量 """
     config_path = "../config/openai_api_key.local"
     with open(config_path, "r") as fr:
         key = fr.read().strip()
@@ -32,7 +36,17 @@ class QAAgent:
         self.response = ""
 
     @staticmethod
-    def set_up_vector_store(filepath):
+    def set_up_vector_store(filepath) -> FAISS:
+        """ 初始化FAISS向量库 """
+        # embedding model
+        embedding_model = HuggingFaceEmbeddings(model_name="shibing624/text2vec-base-chinese")
+        # load index from disk
+        index_name = Path(filepath).stem
+        try:
+            print(f"加载向量库...")
+            return FAISS.load_local(LOCAL_INDEX_PATH, embedding_model, index_name=index_name)
+        except RuntimeError:
+            print(f">> 向量加载错误，从文件生成... ")
         # load file
         loader = PyPDFLoader(file_path=filepath)
         docs = loader.load()
@@ -44,12 +58,15 @@ class QAAgent:
             chunk_overlap=200,
         )
         docs_split = text_spliter.split_text(doc_text)
-        # build embedding
-        embedding_model = HuggingFaceEmbeddings(model_name="shibing624/text2vec-base-chinese")
+        # embedding
         vector_store = FAISS.from_texts(docs_split, embedding_model)
+        # save index to disk
+        vector_store.save_local(LOCAL_INDEX_PATH, index_name)
+        print(f"向量生成完毕，保存至: {LOCAL_INDEX_PATH}/{index_name}.faiss")
         return vector_store
 
-    def search_engine(self, query):
+    def search_engine(self, query: str) -> None:
+        """ 对查询进行向量检索和回答 """
         print(f"Q: {query}")
         # search
         sim_docs = self.vector_store.similarity_search(query)
