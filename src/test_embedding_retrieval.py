@@ -52,7 +52,7 @@ class TestEmbeddingRetrieval:
         if not self.test_set:
             return
         # 读取向量索引
-        embeddings = HuggingFaceEmbeddings(model_name="shibing624/text2vec-base-chinese")
+        embeddings = HuggingFaceEmbeddings(model_name="thenlper/gte-base-zh")
         index_path = "../data/index/"
         vector_store = FAISS.load_local(index_path, embeddings, index_name="WLAN 维护宝典（分销）")
         correct_cnt = 0
