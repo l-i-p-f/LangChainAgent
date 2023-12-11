@@ -1,0 +1,11 @@
+data_path:
+  input_path: ../data/pdf/WLAN 维护宝典（分销）.pdf
+  index_path: ../data/index
+  test_path: ../data/test_set/test_WLAN 维护宝典（分销）_retrieval_v1.txt
+
+embedding:
+  model_name: thenlper/gte-base-zh
+
+retrieval:
+  top_k: 3
+  fetch_k: 30
