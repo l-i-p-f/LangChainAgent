@@ -1,5 +1,15 @@
 # LangChainAgent
 
+一些有用的链接
+
+[LangChain Chat](https://chat.langchain.com)：API/文档问题查询问答
+
+[LangChain中文社区](https://www.langchain.cn)：近期不怎么活跃
+
+[Huggingface MTEB榜单：向量模型选型](https://huggingface.co/spaces/mteb/leaderboard)
+
+
+
 ## TODOLIST
 - [ ] 提升向量索引的正确性：找得对
   - [x] 构建测试数据集v1: 10条, 简单任务，标题召回
@@ -14,6 +24,50 @@
   - RetrievalQA研究
 - [ ] 并发和异步
 - [ ] 出处
+
+
+
+## Notes
+
+### 文本分词器
+**知识点**
+- 分词：不同的分词器使用不同的分词词表。词表大小影响分词的token数量，从而影响模型推理性能。
+- 大语言模型的输入有最大长度有限制，所以要对长文本分块chunk
+  - chunk_size: 控制每个chunk的最大长度
+  - chunk_overlap: 相邻chunk之间的重叠token数量，保证语义的连惯性
+
+例子1: 理解chunk_size和separator的关系
+
+> 以如下文本为例，以chunk_size = 8，separator = ‘,’，chunk_overlap=0 为参数：
+> 
+> 输入: "阿斯顿发阿萨德，大沙发靠阿道夫，达到，而且，发二，切尔奇奇情况， 安三胖放进去为大发放安抚， 阿阿道夫，爱欧吃矛，五六千"
+> 
+> 输出: ['阿斯顿发阿萨德', '大沙发靠阿道夫', '达到，而且，发二', '切尔奇奇情况', '安三胖放进去为大发放安抚', '阿阿道夫', '爱欧吃矛，五六千']
+> 
+> 1、将文本以中文符逗号进行分割。
+> 
+> 2、分割后的文本块，与前面的chunk合并，当前chunk文本长度小于8，则可以继续进行合并（合并时分割符也计算长度），比如“达到”,“而且”,“发二”，单个文本的长度小于8，合并之后也不大于8，所以会将这三个合并到一起当做一个文本。
+> 
+> 3、如果分割之后的文本长度大于8，比如"安三胖放进去为大发放安抚"，这种大于8的长度的文本因为无法按照逗号分割，所以也只能保留下来作为一个文本。这种情况分词器会打日志报错打醒。
+
+例子2: 理解chunk_overlap
+```
+>>> textspliter = CharacterTextSplitter(separator="，", chunk_size=10, chunk_overlap=1)
+>>> textspliter.split_text(s)
+Created a chunk of size 13, which is longer than the specified 10
+['阿斯顿发阿萨德', '大沙发靠阿道夫，达到', '而且，发二', '切尔奇奇情况', '安三胖放进去为大发放安抚', '阿阿道夫，爱欧吃矛', '五六千']
+```
+
+**分词器**
+CharacterTextSplitter
+
+RecursiveCharacterTextSplitter（重叠滑窗分句法）
+
+NLTKTextSplitter
+
+SpacyTextSplitter
+
+
 
 ## 第一个LangChain例子
 
