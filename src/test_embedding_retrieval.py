@@ -5,13 +5,13 @@
 
 import re
 
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from agent import QAAgent
 
 
 class TestEmbeddingRetrieval:
     def __init__(self):
         self.test_set = []
+        self.qa_agent = QAAgent()
 
     def set_up(self) -> None:
         """ 读取测试数据 """
@@ -51,22 +51,17 @@ class TestEmbeddingRetrieval:
     def test_embedding_retrieval(self) -> None:
         if not self.test_set:
             return
-        # 读取向量索引
-        embeddings = HuggingFaceEmbeddings(model_name="thenlper/gte-base-zh")
-        index_path = "../data/index/"
-        vector_store = FAISS.load_local(index_path, embeddings, index_name="WLAN 维护宝典（分销）")
         correct_cnt = 0
         for q, a in self.test_set:
-            print(f"Q: {q}")
             # 去除空白符
             a_rm_blank = re.sub(r"\s+", "", a)
             # 召回top3文档
-            sim_docs = vector_store.similarity_search(q, k=3, fetch_k=30)
-            for doc in sim_docs:
+            final_res = self.qa_agent.search_engine(q)
+            for doc in final_res:
                 # 比较文本相似度
-                if self.compare_two_sentence(a_rm_blank, doc.page_content):
+                if self.compare_two_sentence(a_rm_blank, doc):
                     correct_cnt += 1
-                    print(f"A: {doc.page_content}")
+                    print(f"A: {doc}")
                     break
             print("===" * 3)
 

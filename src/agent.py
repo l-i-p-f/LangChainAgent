@@ -88,7 +88,7 @@ class QAAgent:
             print(f"保存文本至ES索引: {self.retriever.index_name}")
         return vector_store
 
-    def search_engine(self, query: str) -> None:
+    def search_engine(self, query: str) -> [str]:
         """ 对查询进行向量检索和回答 """
         print(f"Q: {query}")
         # search
@@ -97,14 +97,25 @@ class QAAgent:
         # embedding retrieval
         sim_docs = self.vector_store.similarity_search(query, k=top_k, fetch_k=fetch_k)
         # es retrieval
-        es_docs = self.retriever.get_relevant_documents(query) if self.retriever else []
-        search_res = [doc.page_content for doc in sim_docs]
-        print("Searched:")
-        print("===" * 3)
-        for idx, doc in enumerate(search_res):
-            print(f"{idx}. {doc}")
-            print("  -- 分割线 --  ")
-        print("===" * 3)
+        es_docs = self.retriever.get_relevant_documents(query, limit=top_k) if self.retriever else []
+        final_res = [doc.page_content for doc in es_docs[:top_k]]
+        for sim_doc in sim_docs:
+            for es_doc in final_res:
+                if sim_doc.page_content[:10] == es_doc[:10]:
+                    break
+            else:
+                final_res.append(sim_doc.page_content)
+
+        if CONFIG["dev"]["is_debug_mode"]:
+            print("Searched:")
+            print("===" * 3)
+            for idx, doc in enumerate(final_res):
+                print(f"{idx}. {doc}")
+                print("  -- 分割线 --  ")
+            print("===" * 3)
+        return final_res
+
+    def get_llm_result(self, query, search_res):
         # prompt
         prompt = PromptTemplate(
             input_variables=["context", "query"],
