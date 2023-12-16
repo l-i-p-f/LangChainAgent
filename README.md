@@ -21,6 +21,7 @@
   - 索引方式：向量距离计算
     - [ ] 子index索引：将query拆分多个子查询，分别召回 
     - MMR算法：Maximal Marginal Relevance(最大边际相关性)，牺牲部分准确性，控制推荐算法多样性
+  - [x] 关键词召回: 原文召回100%
   - RetrievalQA研究
 - [ ] 并发和异步
 - [ ] 出处
@@ -59,13 +60,67 @@ Created a chunk of size 13, which is longer than the specified 10
 ```
 
 **分词器**
+
+对于pdf文档
+
+- separator
+  - 。\n：较合适
+  - \n：不合适，因为一般是按行解析的，很多非语义结束的换行
+  - \n\n：不合适，很可能全篇都没有连续的换行，因为空行不解析
+- chunk_overlap：如果设置太大，很多碎片的标题，可能会多次出现
+
 CharacterTextSplitter
+
+固定长度分词
+
+```python
+text_spliter = CharacterTextSplitter(
+        separator="。\n",
+        chunk_size=800,
+        chunk_overlap=200,
+      )
+```
+
+
 
 RecursiveCharacterTextSplitter（重叠滑窗分句法）
 
+
+
 NLTKTextSplitter
 
+需要下载 `punkt` 模型
+
+```python
+>>> import nltk
+>>> nltk.download('punkt')
+[nltk_data] Downloading package punkt to /Users/lipf/nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+
+text_spliter = NLTKTextSplitter(
+     separator="。\n",
+     chunk_size=1024,
+     chunk_overlap=200,
+)
+```
+
+长文本
+
+
+
 SpacyTextSplitter
+
+需要先下载 `zh_core_web_sm` 模型。
+
+```python
+text_spliter = SpacyTextSplitter(
+    pipeline='zh_core_web_sm',
+    chunk_size=1024,
+    chunk_overlap=200,
+)
+```
+
+分词器感觉有点问题，把 `2.1.2` 拆成了 `2` 和 `1.2` 。一种猜测是分词器对符号进行了处理。
 
 
 

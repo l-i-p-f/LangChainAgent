@@ -15,3 +15,6 @@ elasticsearch:
   url: http://localhost:9200
   index_name: langchain-index
   user_name: elastic
+
+dev:
+  is_debug_mode: False
