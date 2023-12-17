@@ -1,8 +1,8 @@
 data_path:
   input_path: ../data/pdf/WLAN 维护宝典（分销）.pdf
 #  input_path: ../data/pdf/01-08 故障处理 AC AP升级类问题.pdf.local
-  index_path: ../data/index
-  test_path: ../data/test_set/test_WLAN 维护宝典（分销）_retrieval_v1.txt
+  index_path: ../data/index.local
+  test_path: ../data/test_set/testset_content_recall_WLAN 维护宝典（分销）.txt
 
 embedding:
   model_name: thenlper/gte-base-zh

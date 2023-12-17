@@ -32,7 +32,7 @@ class QAAgent:
             self.retriever = None
             print("[Warning] 没有使用ES引擎或ES加载失败")
         filepath = CONFIG["data_path"]["input_path"]
-        self.vector_store, docs = self.set_up_vector_store(filepath)
+        self.vector_store = self.set_up_vector_store(filepath)
         self.query = "hi"
         self.context = []
         self.response = ""
@@ -59,7 +59,7 @@ class QAAgent:
         index_name = Path(filepath).stem
         try:
             print(f"加载向量库...")
-            return FAISS.load_local(index_path, embedding_model, index_name=index_name), []
+            return FAISS.load_local(index_path, embedding_model, index_name=index_name)
         except RuntimeError:
             print(f">> 向量加载错误，从文件生成... ")
         # load file
@@ -84,7 +84,7 @@ class QAAgent:
         print(f"向量生成完毕，保存至: {index_path}/{index_name}.faiss")
         # add text to es index
         if self.retriever:
-            self.retriever.add_tetxs(docs_split)
+            self.retriever.add_texts(docs_split)
             print(f"保存文本至ES索引: {self.retriever.index_name}")
         return vector_store
 

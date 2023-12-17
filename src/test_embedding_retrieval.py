@@ -15,7 +15,7 @@ class TestEmbeddingRetrieval:
 
     def set_up(self) -> None:
         """ 读取测试数据 """
-        test_file_path = "../data/test_set/testset_WLAN 维护宝典（分销）_retrieval_v1.txt"
+        test_file_path = "../data/test_set/testset_content_recall_WLAN 维护宝典（分销）.txt"
         with open(test_file_path, "r", encoding="utf-8") as fr:
             for line in fr.readlines():
                 q, t = line.split("|||")
